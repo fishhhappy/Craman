@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF"
+    android:divider="@drawable/divider"
+    android:orientation="vertical"
+    android:showDividers="beginning|end|middle">
+
+    <LinearLayout
+        android:id="@+id/ll_pronunciation"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发音类型"
+            android:textColor="@color/colorPrimaryText"
+            android:textSize="18sp" />
+
+        <RadioGroup
+            android:id="@+id/rg_pronunciation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbtn_english"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="英式"
+                android:textColor="@color/colorSecondaryText"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rbtn_american"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="美式"
+                android:textColor="@color/colorSecondaryText"
+                android:textSize="14sp" />
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_cache"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="清除缓存"
+            android:textColor="@color/colorPrimaryText"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_cache"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:gravity="right"
+            android:text="计算中..."
+            android:textColor="@color/colorSecondaryText"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

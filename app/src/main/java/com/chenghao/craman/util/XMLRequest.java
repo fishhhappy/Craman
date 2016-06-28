@@ -33,8 +33,9 @@ public class XMLRequest extends Request<XmlPullParser> {
     @Override
     protected Response<XmlPullParser> parseNetworkResponse(NetworkResponse response) {
         try {
-            String xmlString = new String(response.data,
-                    HttpHeaderParser.parseCharset(response.headers));
+//            String xmlString = new String(response.data,
+//                    HttpHeaderParser.parseCharset(response.headers));
+            String xmlString = new String(response.data, "UTF-8");
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser xmlPullParser = factory.newPullParser();
             xmlPullParser.setInput(new StringReader(xmlString));

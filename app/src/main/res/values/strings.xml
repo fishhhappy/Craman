@@ -96,4 +96,5 @@
     </string>
     <string name="promotion">Craman 让你更快背会单词</string>
     <string name="about">如果您对Craman有任何建议或者意见，欢迎发邮件至chenghao0306@foxmail.com</string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
 </resources>

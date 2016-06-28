@@ -1,13 +1,18 @@
 package com.chenghao.craman;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
@@ -15,13 +20,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.chenghao.craman.database.DataAccess;
+import com.chenghao.craman.model.Sentence;
 import com.chenghao.craman.model.Word;
 import com.chenghao.craman.util.DownloadVoiceThread;
 import com.chenghao.craman.util.XMLRequest;
@@ -30,6 +35,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -49,12 +55,16 @@ public class WordActivity extends BaseScrollingActivity {
 
     private TextView tv_meaning, tv_phonetic, tv_familiarity;
     //    private RatingBar rb_familiarity;
-    private LinearLayout ll_phonetic, ll_familiarity, ll_meaning, ll_familiarity_background;
+    private LinearLayout ll_phonetic, ll_familiarity, ll_meaning, ll_familiarity_background, ll_sentence;
     private Button btn_left;
     private Button btn_right;
+    private CustomListView lv_sentence;
 
     private RequestQueue mQueue;
     private MediaPlayer player;
+    private String pronunciation = "american";
+
+    private Toolbar.OnMenuItemClickListener onMenuItemClickListener, onMenuItemClickListener2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,6 +72,7 @@ public class WordActivity extends BaseScrollingActivity {
         dataAccess = new DataAccess();
         if (mode == LEARNING_MODE) {
             updateWord();
+            toolbar.setOnMenuItemClickListener(onMenuItemClickListener2);
         } else if (mode == BROWSING_MODE) {
             String word = bundle.getString("word");
             String table = bundle.getString("table");
@@ -72,6 +83,8 @@ public class WordActivity extends BaseScrollingActivity {
         mQueue = Volley.newRequestQueue(this);
         player = new MediaPlayer();
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        SharedPreferences mySharedPreferences = getSharedPreferences("config", Activity.MODE_PRIVATE);
+        pronunciation = mySharedPreferences.getString("pronunciation", "american");
     }
 
     @Override
@@ -85,7 +98,11 @@ public class WordActivity extends BaseScrollingActivity {
         ll_familiarity = (LinearLayout) (content.findViewById(R.id.ll_familiarity));
         ll_meaning = (LinearLayout) (content.findViewById(R.id.ll_meaning));
         ll_familiarity_background = (LinearLayout) (content.findViewById(R.id.ll_familiarity_background));
+        ll_sentence = (LinearLayout) (content.findViewById(R.id.ll_sentence));
+        ll_sentence.setVisibility(View.GONE);
 //        rb_familiarity = (RatingBar) (content.findViewById(R.id.rb_familiarity));
+        lv_sentence = (CustomListView) (content.findViewById(R.id.lv_sentence));
+        lv_sentence.setEnabled(false);
 
         if (mode == LEARNING_MODE) {
             btn_left = (Button) (bottom.findViewById(R.id.btn_left));
@@ -131,20 +148,27 @@ public class WordActivity extends BaseScrollingActivity {
                 @Override
                 public void onClick(View v) {
                     if (btn_left.getText().equals("不认识")) {
+                        if (ll_sentence.getVisibility() == View.VISIBLE)
+                            ll_sentence.startAnimation(mShowAction);
                         ll_familiarity_background.startAnimation(mShowAction);
                         ll_meaning.startAnimation(mShowAction);
                         ll_meaning.setVisibility(View.VISIBLE);
                         btn_right.setVisibility(View.GONE);
                         btn_left.setText("下一个");
                         ll_familiarity.setClickable(true);
+                        ll_phonetic.setClickable(true);
+                        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
                     } else { // 记错了（先选了认识）或者下一个（先选了不认识）
                         ll_meaning.setVisibility(View.GONE);
+                        ll_sentence.setVisibility(View.GONE);
                         btn_right.setVisibility(View.VISIBLE);
                         dataAccess.updateWordFamiliarity(current_table, current_word.getSpelling(), current_word.getFamiliarity() - 1, false);
                         updateWord();
                         btn_left.setText("不认识");
                         btn_right.setText("认识");
                         ll_familiarity.setClickable(false);
+                        ll_phonetic.setClickable(false);
+                        toolbar.setOnMenuItemClickListener(onMenuItemClickListener2);
                     }
                 }
             });
@@ -153,19 +177,26 @@ public class WordActivity extends BaseScrollingActivity {
                 @Override
                 public void onClick(View v) {
                     if (btn_right.getText().equals("认识")) {
+                        if (ll_sentence.getVisibility() == View.VISIBLE)
+                            ll_sentence.startAnimation(mShowAction);
                         ll_familiarity_background.startAnimation(mShowAction);
                         ll_meaning.startAnimation(mShowAction);
                         ll_meaning.setVisibility(View.VISIBLE);
                         btn_left.setText("记错了");
                         btn_right.setText("记对了");
                         ll_familiarity.setClickable(true);
+                        ll_phonetic.setClickable(true);
+                        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
                     } else { // 记对了
                         ll_meaning.setVisibility(View.GONE);
+                        ll_sentence.setVisibility(View.GONE);
                         dataAccess.updateWordFamiliarity(current_table, current_word.getSpelling(), current_word.getFamiliarity() + 1, true);
                         updateWord();
                         btn_left.setText("不认识");
                         btn_right.setText("认识");
                         ll_familiarity.setClickable(false);
+                        ll_phonetic.setClickable(false);
+                        toolbar.setOnMenuItemClickListener(onMenuItemClickListener2);
                     }
                 }
             });
@@ -173,6 +204,8 @@ public class WordActivity extends BaseScrollingActivity {
             btn_left.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (ll_sentence.getVisibility() == View.VISIBLE)
+                        ll_sentence.startAnimation(mShowAction);
                     ll_familiarity_background.startAnimation(mShowAction);
                     ll_meaning.startAnimation(mShowAction);
                     ll_meaning.setVisibility(View.VISIBLE);
@@ -186,7 +219,11 @@ public class WordActivity extends BaseScrollingActivity {
                     if (!updateStarredWord())
                         Snackbar.make(rl_root, "已经是最后一个了", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
-                    else btn_left.setEnabled(true);
+                    else {
+                        btn_left.setEnabled(true);
+                        ll_meaning.setVisibility(View.GONE);
+                        ll_sentence.setVisibility(View.GONE);
+                    }
                 }
             });
         }
@@ -239,9 +276,6 @@ public class WordActivity extends BaseScrollingActivity {
             }
         });
 
-        if (mode == LEARNING_MODE)
-            ll_familiarity.setClickable(false);
-
         ll_phonetic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -260,9 +294,8 @@ public class WordActivity extends BaseScrollingActivity {
                                                 String nodeName = response.getName();
                                                 if (nodeName.equals("pron")) {
                                                     count++;
-                                                    if (count == 2) {
+                                                    if ((pronunciation.equals("english") && count == 1) || (pronunciation.equals("american") && count == 2)) {
                                                         if (response.next() == XmlPullParser.TEXT) {
-                                                            Toast.makeText(getApplicationContext(), response.getText(), Toast.LENGTH_LONG);
                                                             String pronunciationUrl = response.getText();
                                                             Log.i("Pronunciation", pronunciationUrl);
                                                             new DownloadVoiceThread(getApplicationContext(), pronunciationUrl, player).start();
@@ -289,6 +322,119 @@ public class WordActivity extends BaseScrollingActivity {
                 mQueue.add(xmlRequest);
             }
         });
+
+        if (mode == LEARNING_MODE) {
+            ll_familiarity.setClickable(false);
+            ll_phonetic.setClickable(false);
+        }
+
+        onMenuItemClickListener = new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
+                Log.i("Key", "Menu action internet");
+
+                if (id == R.id.action_internet) {
+                    if (ll_sentence.getVisibility() == View.VISIBLE)
+                        return true;
+
+                    String url = "http://dict-co.iciba.com/api/dictionary.php?w=" + current_word.getSpelling() + "&key=0EAE08A016D6688F64AB3EBB2337BFB0";
+                    XMLRequest xmlRequest = new XMLRequest(
+                            url,
+                            new Response.Listener<XmlPullParser>() {
+                                @Override
+                                public void onResponse(XmlPullParser response) {
+                                    ArrayList<Sentence> sentences = new ArrayList<Sentence>();
+                                    try {
+                                        int eventType = response.getEventType();
+                                        int count = 0;
+                                        String original = "", translation = "";
+                                        tv_meaning.setText("更新中");
+                                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                                            switch (eventType) {
+                                                case XmlPullParser.START_TAG:
+                                                    String nodeName = response.getName();
+                                                    if (nodeName.equals("ps")) {
+                                                        count++;
+                                                        if ((pronunciation.equals("english") && count == 1) || (pronunciation.equals("american") && count == 2)) {
+                                                            if (response.next() == XmlPullParser.TEXT) {
+                                                                String phonetic = "[" + response.getText() + "]";
+                                                                tv_phonetic.setText(phonetic);
+                                                            }
+                                                        }
+                                                    } else if (nodeName.equals("pos")) {
+                                                        String pos = "";
+                                                        if (response.next() == XmlPullParser.TEXT) {
+                                                            pos = response.getText();
+                                                        }
+                                                        if (tv_meaning.getText().equals("更新中")) {
+                                                            tv_meaning.setText(pos);
+                                                        } else {
+                                                            tv_meaning.setText(tv_meaning.getText() + "\n" + pos);
+                                                        }
+                                                    } else if (nodeName.equals("acceptation")) {
+                                                        if (response.next() == XmlPullParser.TEXT) {
+                                                            tv_meaning.setText(tv_meaning.getText() + " " + response.getText().trim());
+                                                        }
+                                                    } else if (nodeName.equals("orig")) {
+                                                        if (response.next() == XmlPullParser.TEXT) {
+                                                            original = response.getText().trim();
+                                                        }
+                                                    } else if (nodeName.equals("trans")) {
+                                                        if (response.next() == XmlPullParser.TEXT) {
+                                                            translation = response.getText().trim();
+                                                            sentences.add(new Sentence(original, translation));
+                                                        }
+                                                    }
+                                            }
+                                            eventType = response.next();
+                                        }
+                                    } catch (XmlPullParserException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    if (sentences.size() > 0) {
+                                        SentenceAdaptor sentenceAdaptor = new SentenceAdaptor(WordActivity.this, sentences);
+                                        lv_sentence.setAdapter(sentenceAdaptor);
+                                        ll_sentence.startAnimation(mShowAction);
+                                        ll_sentence.setVisibility(View.VISIBLE);
+                                    }
+                                    String meaning = tv_meaning.getText().toString();
+                                    if (meaning.charAt(meaning.length() - 1) == '；') {
+                                        tv_meaning.setText(meaning.substring(0, meaning.length() - 1));
+                                    }
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e("TAG", error.getMessage(), error);
+                        }
+                    });
+                    xmlRequest.setTag("Pronunciation");
+                    mQueue.add(xmlRequest);
+                }
+
+                return true;
+            }
+        };
+
+        onMenuItemClickListener2 = new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Snackbar.make(rl_root, "选择以后再查看网络释义吧", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                return true;
+            }
+        };
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_scrolling, menu);
+        return true;
     }
 
     public void updateWord() {
@@ -364,6 +510,10 @@ public class WordActivity extends BaseScrollingActivity {
 
     public void updateView() {
         setTitle(current_word.getSpelling());
+
+        if (mode != LEARNING_MODE)
+            toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
         Log.i("Update Word", current_word.getSpelling());
         tv_meaning.setText(current_word.getMeaning());
         tv_phonetic.setText(current_word.getPhonetic());
@@ -392,10 +542,12 @@ public class WordActivity extends BaseScrollingActivity {
         if (mQueue != null) {
             mQueue.cancelAll("Pronunciation");
         }
-        if (player.isPlaying()) {
-            player.stop();
+        if (player != null) {
+            if (player.isPlaying()) {
+                player.stop();
+            }
+            player.release();
         }
-        player.release();
         super.onDestroy();
     }
 }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="8dp"
+    android:paddingTop="8dp"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin">
+
+    <TextView
+        android:id="@+id/tv_sentence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This document contains Hello application components of each document summary of the contents."
+        android:textColor="@color/colorPrimaryText"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_marginTop="4dp"
+        android:id="@+id/tv_translation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="此文件包含组成Hello应用程序的每个文件的内容摘要."
+        android:textColor="@color/colorSecondaryText"
+        android:textSize="15sp" />
+
+</LinearLayout>

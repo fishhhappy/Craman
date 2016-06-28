@@ -287,6 +287,13 @@ public class MainActivity extends AppCompatActivity
             intent.putExtras(bundle);
             intent.setClass(MainActivity.this, AboutActivity.class);
             startActivity(intent);
+        } else if (id == R.id.setting) {
+            Intent intent = new Intent();
+            Bundle bundle = new Bundle();
+            bundle.putInt("content", R.layout.setting);
+            intent.putExtras(bundle);
+            intent.setClass(MainActivity.this, SettingActivity.class);
+            startActivity(intent);
         } else if (id == R.id.exit) {
             finish();
         }
