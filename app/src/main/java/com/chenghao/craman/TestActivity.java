@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.chenghao.craman.database.DataAccess;
 import com.chenghao.craman.model.Word;
+import com.chenghao.craman.util.FadeOutAndIn;
 import com.hanks.htextview.HTextView;
 
 import java.util.Vector;
@@ -33,12 +34,19 @@ public class TestActivity extends BaseActivity {
     private int max = 20;
     private DataAccess dataAccess;
 
+    private FadeOutAndIn fadeOutAndIn_a, fadeOutAndIn_b, fadeOutAndIn_c, fadeOutAndIn_d;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setTitle("测试");
         dataAccess = new DataAccess();
+
+        fadeOutAndIn_a = new FadeOutAndIn(tv_meaning_a);
+        fadeOutAndIn_b = new FadeOutAndIn(tv_meaning_b);
+        fadeOutAndIn_c = new FadeOutAndIn(tv_meaning_c);
+        fadeOutAndIn_d = new FadeOutAndIn(tv_meaning_d);
 
         updateWord();
     }
@@ -161,6 +169,10 @@ public class TestActivity extends BaseActivity {
         });
     }
 
+    /*
+    如果没有单词先取测试单词
+    然后更新显示
+     */
     private void updateWord() {
         if (count == 0) {
             words = dataAccess.getRandomTestingWords(max);
@@ -175,6 +187,9 @@ public class TestActivity extends BaseActivity {
         Log.i("Update Word", words.size() + " left");
     }
 
+    /*
+    更新显示的单词和选项
+     */
     private void updateView() {
         initializeView();
 
@@ -185,28 +200,59 @@ public class TestActivity extends BaseActivity {
         Vector<String> meanings = dataAccess.getRandomMeanings();
 
         if (answer == 1) {
-            tv_meaning_a.setText(current_word.getMeaning());
-            tv_meaning_b.setText(meanings.get(0));
-            tv_meaning_c.setText(meanings.get(1));
-            tv_meaning_d.setText(meanings.get(2));
+            fadeOutAndIn_a.setText(current_word.getMeaning());
+            fadeOutAndIn_a.start();
+
+            fadeOutAndIn_b.setText(meanings.get(0));
+            fadeOutAndIn_b.start();
+
+            fadeOutAndIn_c.setText(meanings.get(1));
+            fadeOutAndIn_c.start();
+
+            fadeOutAndIn_d.setText(meanings.get(2));
+            fadeOutAndIn_d.start();
         } else if (answer == 2) {
-            tv_meaning_a.setText(meanings.get(0));
-            tv_meaning_b.setText(current_word.getMeaning());
-            tv_meaning_c.setText(meanings.get(1));
-            tv_meaning_d.setText(meanings.get(2));
+            fadeOutAndIn_a.setText(meanings.get(0));
+            fadeOutAndIn_a.start();
+
+            fadeOutAndIn_b.setText(current_word.getMeaning());
+            fadeOutAndIn_b.start();
+
+            fadeOutAndIn_c.setText(meanings.get(1));
+            fadeOutAndIn_c.start();
+
+            fadeOutAndIn_d.setText(meanings.get(2));
+            fadeOutAndIn_d.start();
         } else if (answer == 3) {
-            tv_meaning_a.setText(meanings.get(0));
-            tv_meaning_b.setText(meanings.get(1));
-            tv_meaning_c.setText(current_word.getMeaning());
-            tv_meaning_d.setText(meanings.get(2));
+            fadeOutAndIn_a.setText(meanings.get(0));
+            fadeOutAndIn_a.start();
+
+            fadeOutAndIn_b.setText(meanings.get(1));
+            fadeOutAndIn_b.start();
+
+            fadeOutAndIn_c.setText(current_word.getMeaning());
+            fadeOutAndIn_c.start();
+
+            fadeOutAndIn_d.setText(meanings.get(2));
+            fadeOutAndIn_d.start();
         } else if (answer == 4) {
-            tv_meaning_a.setText(meanings.get(0));
-            tv_meaning_b.setText(meanings.get(1));
-            tv_meaning_c.setText(meanings.get(2));
-            tv_meaning_d.setText(current_word.getMeaning());
+            fadeOutAndIn_a.setText(meanings.get(0));
+            fadeOutAndIn_a.start();
+
+            fadeOutAndIn_b.setText(meanings.get(1));
+            fadeOutAndIn_b.start();
+
+            fadeOutAndIn_c.setText(meanings.get(2));
+            fadeOutAndIn_c.start();
+
+            fadeOutAndIn_d.setText(current_word.getMeaning());
+            fadeOutAndIn_d.start();
         }
     }
 
+    /*
+    先把之前对界面颜色之类的改动还原
+     */
     private void initializeView() {
         ll_test_word.setClickable(false);
         btn_next.setEnabled(false);

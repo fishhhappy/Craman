@@ -79,7 +79,7 @@
         android:id="@+id/ll_a_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:background="#FFFFFF">
 
         <LinearLayout
@@ -118,7 +118,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:text="test"
                     android:textColor="@color/colorPrimaryText"
                     android:textSize="20sp" />
 
@@ -132,7 +131,7 @@
         android:id="@+id/ll_b_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:background="#FFFFFF">
 
         <LinearLayout
@@ -171,7 +170,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:text="test"
                     android:textColor="@color/colorPrimaryText"
                     android:textSize="20sp" />
 
@@ -185,7 +183,7 @@
         android:id="@+id/ll_c_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:background="#FFFFFF">
 
         <LinearLayout
@@ -224,7 +222,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:text="test"
                     android:textColor="@color/colorPrimaryText"
                     android:textSize="20sp" />
 
@@ -276,7 +273,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:text="test"
                     android:textColor="@color/colorPrimaryText"
                     android:textSize="20sp" />
 
