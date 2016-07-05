@@ -71,12 +71,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#FFFFFF"
+            android:lineSpacingExtra="4dp"
             android:paddingBottom="8dp"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="8dp"
             android:text=" v．n．放弃，放纵 "
-            android:lineSpacingExtra="4dp"
             android:textColor="@color/colorPrimaryText"
             android:textSize="18sp" />
     </LinearLayout>
@@ -156,10 +156,10 @@
             android:textColor="@color/colorSecondaryText"
             android:textSize="14sp" />
 
-        <com.chenghao.craman.CustomListView
+        <com.chenghao.craman.view.CustomListView
             android:id="@+id/lv_sentence"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></com.chenghao.craman.CustomListView>
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

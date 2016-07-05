@@ -1,4 +1,4 @@
-package com.chenghao.craman.util;
+package com.chenghao.craman.animator;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -19,12 +19,12 @@ public class FadeOutAndIn {
     public FadeOutAndIn(View view) {
         this.view = view;
 
-        ObjectAnimator moveOut = ObjectAnimator.ofFloat(view, "translationX", 0f, 100f);
+        ObjectAnimator moveOut = ObjectAnimator.ofFloat(view, "translationX", 0f, 400f);
         moveOut.setInterpolator(new AccelerateDecelerateInterpolator());
 
         fadeOut = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
 
-        ObjectAnimator moveIn = ObjectAnimator.ofFloat(view, "translationX", 100f, 0f);
+        ObjectAnimator moveIn = ObjectAnimator.ofFloat(view, "translationX", 400f, 0f);
         moveOut.setInterpolator(new AccelerateDecelerateInterpolator());
 
         ObjectAnimator fadeIn = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);

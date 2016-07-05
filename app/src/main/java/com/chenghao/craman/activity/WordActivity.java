@@ -1,6 +1,5 @@
-package com.chenghao.craman;
+package com.chenghao.craman.activity;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -25,9 +24,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.chenghao.craman.R;
+import com.chenghao.craman.adaptor.SentenceAdaptor;
 import com.chenghao.craman.database.DataAccess;
 import com.chenghao.craman.model.Sentence;
 import com.chenghao.craman.model.Word;
+import com.chenghao.craman.view.CustomListView;
 import com.chenghao.craman.util.DownloadVoiceThread;
 import com.chenghao.craman.util.XMLRequest;
 
@@ -83,7 +85,7 @@ public class WordActivity extends BaseScrollingActivity {
         mQueue = Volley.newRequestQueue(this);
         player = new MediaPlayer();
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        SharedPreferences mySharedPreferences = getSharedPreferences("config", Activity.MODE_PRIVATE);
+        SharedPreferences mySharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
         pronunciation = mySharedPreferences.getString("pronunciation", "american");
     }
 

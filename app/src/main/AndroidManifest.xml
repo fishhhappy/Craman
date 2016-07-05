@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
@@ -23,22 +23,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BaseActivity"
+            android:name=".activity.BaseActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".TestActivity"
+            android:name=".activity.TestActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".AboutActivity"
+            android:name=".activity.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".SettingActivity"
+            android:name=".activity.SettingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".WordActivity"
+            android:name=".activity.WordActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".BaseScrollingActivity"
+            android:name=".activity.BaseScrollingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
 

@@ -1,6 +1,5 @@
-package com.chenghao.craman;
+package com.chenghao.craman.activity;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -9,6 +8,8 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+
+import com.chenghao.craman.R;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -35,7 +36,7 @@ public class SettingActivity extends BaseActivity {
         rg_pronunciation = (RadioGroup) content.findViewById(R.id.rg_pronunciation);
         rbtn_english = (RadioButton) content.findViewById(R.id.rbtn_english);
         rbtn_american = (RadioButton) content.findViewById(R.id.rbtn_american);
-        mySharedPreferences = getSharedPreferences("config", Activity.MODE_PRIVATE);
+        mySharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
         String pronunciation = mySharedPreferences.getString("pronunciation", "american");
         if (pronunciation.equals("american")) {
             ((RadioButton) rg_pronunciation.getChildAt(1)).setChecked(true);

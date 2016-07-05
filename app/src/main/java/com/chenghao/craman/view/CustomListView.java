@@ -1,4 +1,4 @@
-package com.chenghao.craman;
+package com.chenghao.craman.view;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -1,4 +1,4 @@
-package com.chenghao.craman;
+package com.chenghao.craman.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.chenghao.craman.R;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.TypiconsModule;
 

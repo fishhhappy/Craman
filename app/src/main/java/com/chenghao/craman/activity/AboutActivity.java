@@ -1,4 +1,4 @@
-package com.chenghao.craman;
+package com.chenghao.craman.activity;
 
 import android.os.Bundle;
 

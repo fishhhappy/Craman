@@ -1,4 +1,4 @@
-package com.chenghao.craman;
+package com.chenghao.craman.adaptor;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.chenghao.craman.R;
 import com.chenghao.craman.model.Sentence;
 
 import java.util.ArrayList;

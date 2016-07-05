@@ -1,5 +1,9 @@
-package com.chenghao.craman;
+package com.chenghao.craman.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,16 +18,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.chenghao.craman.R;
+import com.chenghao.craman.adaptor.TestAdaptor;
+import com.chenghao.craman.adaptor.WordAdaptor;
 import com.chenghao.craman.database.DataAccess;
 import com.chenghao.craman.database.SqlHelper;
+import com.chenghao.craman.model.Test;
 import com.chenghao.craman.model.Word;
+import com.chenghao.craman.view.CustomListView;
 import com.hanks.htextview.HTextView;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.SimpleLineIconsModule;
@@ -31,15 +41,18 @@ import com.joanzapata.iconify.fonts.SimpleLineIconsModule;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    //    private SqlHelper sqlHelper;
     private DataAccess dataAccess;
     private FloatingActionButton fab;
-    private LinearLayout ll_learn, ll_preview, ll_refresh, ll_star, ll_test;
-    private TextView tv_refresh, tv_pick_phonetic, tv_pick_meaning;
-    private HTextView tv_pick_spelling, tv_progress;
+    private TextView tv_pick_phonetic, tv_pick_meaning, tv_progress;
+    private HTextView tv_pick_spelling;
+    private Button btn_refresh, btn_detail, btn_learn, btn_star, btn_test;
+    private ImageView iv_expand_learnt_word, iv_expand_starred_word;
+    private RelativeLayout rl_expand_learnt_word, rl_expand_starred_word;
+    private CustomListView lv_learnt_word, lv_starred_word, lv_test;
 
     private String current_table = "book1";
 
@@ -69,22 +82,29 @@ public class MainActivity extends AppCompatActivity
 
         File dir = new File("data/data/com.chenghao.craman/voices/");
         if (!dir.exists()) dir.mkdir();
+
+        getLatestTest();
     }
 
     public void initWidgets() {
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        ll_learn = (LinearLayout) findViewById(R.id.ll_learn);
-        ll_preview = (LinearLayout) findViewById(R.id.ll_preview);
-        ll_refresh = (LinearLayout) findViewById(R.id.ll_refresh);
-        ll_star = (LinearLayout) findViewById(R.id.ll_star);
-        ll_test = (LinearLayout) findViewById(R.id.ll_test);
-        tv_refresh = (TextView) findViewById(R.id.tv_refresh);
         tv_pick_spelling = (HTextView) findViewById(R.id.tv_pick_spelling);
-//        tv_pick_spelling.setAnimateType(HTextViewType.SCALE);
         tv_pick_phonetic = (TextView) findViewById(R.id.tv_pick_phonetic);
         tv_pick_meaning = (TextView) findViewById(R.id.tv_pick_meaning);
-//        tv_pick_meaning.setAnimateType(HTextViewType.SCALE);
-        tv_progress = (HTextView) findViewById(R.id.tv_progress);
+        tv_progress = (TextView) findViewById(R.id.tv_progress);
+        btn_refresh = (Button) findViewById(R.id.btn_refresh);
+        btn_detail = (Button) findViewById(R.id.btn_detail);
+        btn_learn = (Button) findViewById(R.id.btn_learn);
+        btn_star = (Button) findViewById(R.id.btn_star);
+        btn_test = (Button) findViewById(R.id.btn_test);
+        iv_expand_learnt_word = (ImageView) findViewById(R.id.iv_expand_learnt_word);
+        iv_expand_starred_word = (ImageView) findViewById(R.id.iv_expand_starred_word);
+        rl_expand_learnt_word = (RelativeLayout) findViewById(R.id.rl_expand_learnt_word);
+        rl_expand_starred_word = (RelativeLayout) findViewById(R.id.rl_expand_starred_word);
+        lv_learnt_word = (CustomListView) findViewById(R.id.lv_learnt_word);
+        lv_starred_word = (CustomListView) findViewById(R.id.lv_starred_word);
+        lv_test = (CustomListView) findViewById(R.id.lv_test);
+
         pickOneWord();
         updateProgress();
     }
@@ -97,7 +117,6 @@ public class MainActivity extends AppCompatActivity
                 final EditText et_search = (EditText) search_view.findViewById(R.id.et_search);
                 final View view = v;
                 new AlertDialog.Builder(MainActivity.this).setTitle("查询")
-//                        .setIcon(R.mipmap.ic_search_38dp)
                         .setView(search_view)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
@@ -135,10 +154,9 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ll_learn.setOnClickListener(new View.OnClickListener() {
+        btn_learn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(MainActivity.this, WordActivity.class);
                 Intent intent = new Intent();
                 Bundle bundle = new Bundle();
                 bundle.putInt("mode", WordActivity.LEARNING_MODE);
@@ -150,11 +168,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        final Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.rotate);
-        LinearInterpolator lin = new LinearInterpolator();
-        operatingAnim.setInterpolator(lin);
-
-        ll_preview.setOnClickListener(new View.OnClickListener() {
+        btn_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -169,7 +183,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ll_star.setOnClickListener(new View.OnClickListener() {
+        btn_star.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (dataAccess.getStarredWordsCount() == 0)
@@ -188,7 +202,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ll_test.setOnClickListener(new View.OnClickListener() {
+        btn_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -200,12 +214,129 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ll_refresh.setOnClickListener(new View.OnClickListener() {
+        btn_refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (operatingAnim != null) {
-                    tv_refresh.startAnimation(operatingAnim);
-                    pickOneWord();
+                pickOneWord();
+            }
+        });
+
+        rl_expand_learnt_word.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 展开
+                if (lv_learnt_word.getVisibility() == View.GONE) {
+                    final ArrayList<Word> words = dataAccess.getTodayLearntWords();
+
+                    if (words.size() > 0) {
+                        Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_clockwise);
+                        animator.setTarget(iv_expand_learnt_word);
+                        animator.start();
+
+                        WordAdaptor wordAdaptor = new WordAdaptor(MainActivity.this, words);
+                        lv_learnt_word.setAdapter(wordAdaptor);
+                        lv_learnt_word.setVisibility(View.INVISIBLE);
+
+                        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(lv_learnt_word, "alpha", 0f, 1f);
+                        fadeIn.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+                                super.onAnimationStart(animation);
+                                lv_learnt_word.setVisibility(View.VISIBLE);
+                            }
+                        });
+                        fadeIn.setDuration(500);
+                        fadeIn.setInterpolator(new AccelerateDecelerateInterpolator());
+                        fadeIn.start();
+
+                        lv_learnt_word.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                String word = words.get(position).getSpelling();
+                                String table = dataAccess.getTable(word);
+                                Intent intent = new Intent();
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("mode", WordActivity.BROWSING_MODE);
+                                bundle.putInt("content", R.layout.word_content);
+                                bundle.putString("word", word);
+                                bundle.putString("table", table);
+                                intent.putExtras(bundle);
+                                intent.setClass(MainActivity.this, WordActivity.class);
+                                startActivity(intent);
+                            }
+                        });
+                    } else {
+                        Snackbar.make(v, "今日还没有学习，快去背单词吧", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
+                }
+                // 收起
+                else {
+                    Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_counterclockwise);
+                    animator.setTarget(iv_expand_learnt_word);
+                    animator.start();
+
+                    lv_learnt_word.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        rl_expand_starred_word.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 展开
+                if (lv_starred_word.getVisibility() == View.GONE) {
+                    final ArrayList<Word> words = dataAccess.getStarredWords();
+
+                    if (words.size() > 0) {
+                        Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_clockwise);
+                        animator.setTarget(iv_expand_starred_word);
+                        animator.start();
+
+                        WordAdaptor wordAdaptor = new WordAdaptor(MainActivity.this, words);
+                        lv_starred_word.setAdapter(wordAdaptor);
+                        lv_starred_word.setVisibility(View.INVISIBLE);
+
+                        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(lv_starred_word, "alpha", 0f, 1f);
+                        fadeIn.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+                                super.onAnimationStart(animation);
+                                lv_starred_word.setVisibility(View.VISIBLE);
+                            }
+                        });
+                        fadeIn.setDuration(500);
+                        fadeIn.setInterpolator(new AccelerateDecelerateInterpolator());
+                        fadeIn.start();
+
+                        lv_starred_word.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                String word = words.get(position).getSpelling();
+                                String table = dataAccess.getTable(word);
+                                Intent intent = new Intent();
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("mode", WordActivity.BROWSING_MODE);
+                                bundle.putInt("content", R.layout.word_content);
+                                bundle.putString("word", word);
+                                bundle.putString("table", table);
+                                intent.putExtras(bundle);
+                                intent.setClass(MainActivity.this, WordActivity.class);
+                                startActivity(intent);
+                            }
+                        });
+                    } else {
+                        Snackbar.make(v, "还没有收藏过单词", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
+                }
+                // 收起
+                else {
+                    Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_counterclockwise);
+                    animator.setTarget(iv_expand_starred_word);
+                    animator.start();
+
+                    lv_starred_word.setVisibility(View.GONE);
                 }
             }
         });
@@ -324,6 +455,17 @@ public class MainActivity extends AppCompatActivity
 
     private void updateProgress() {
         int progress = dataAccess.getTodayLearntWordsCount();
-        tv_progress.animateText(String.valueOf(progress));
+        tv_progress.setText("今日已学 " + String.valueOf(progress) + " 个");
+    }
+
+    public void getLatestTest() {
+        Test test1 = new Test(20, 20);
+        Test test2 = new Test(20, 18);
+        ArrayList<Test> tests = new ArrayList<Test>();
+        tests.add(test1);
+        tests.add(test2);
+
+        TestAdaptor testAdaptor = new TestAdaptor(this, tests);
+        lv_test.setAdapter(testAdaptor);
     }
 }

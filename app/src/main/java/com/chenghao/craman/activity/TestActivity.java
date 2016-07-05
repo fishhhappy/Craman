@@ -1,4 +1,4 @@
-package com.chenghao.craman;
+package com.chenghao.craman.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +10,10 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.chenghao.craman.R;
 import com.chenghao.craman.database.DataAccess;
 import com.chenghao.craman.model.Word;
-import com.chenghao.craman.util.FadeOutAndIn;
+import com.chenghao.craman.animator.FadeOutAndIn;
 import com.hanks.htextview.HTextView;
 
 import java.util.Vector;

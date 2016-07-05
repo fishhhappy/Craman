@@ -1,4 +1,4 @@
-package com.chenghao.craman;
+package com.chenghao.craman.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.chenghao.craman.R;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.SimpleLineIconsModule;
 

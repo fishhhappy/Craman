@@ -7,6 +7,7 @@ import android.util.Log;
 import com.chenghao.craman.model.Word;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Vector;
 
@@ -141,9 +142,9 @@ public class DataAccess {
                     words.add(word);
                     Log.i("Random Word", word.getSpelling());
                 } while (cursor.moveToNext());
-                if (cursor != null)
-                    cursor.close();
             }
+            if (cursor != null)
+                cursor.close();
         }
 
         return words;
@@ -263,6 +264,50 @@ public class DataAccess {
         if (cursor != null)
             cursor.close();
         return meanings;
+    }
+
+    public ArrayList<Word> getTodayLearntWords() {
+        ArrayList<Word> words = new ArrayList<Word>();
+
+        Cursor cursor = sqlHelper.query("summary", null, "LAST_CORRECT is date('now', 'localtime')", null, null, null, "RANDOM()", "5");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Word word = new Word();
+                word.setSpelling(cursor.getString(1));
+                word.setMeaning(cursor.getString(2));
+                word.setPhonetic(cursor.getString(3));
+                word.setFamiliarity(Integer.parseInt(cursor.getString(5)));
+                word.setStarred(Integer.parseInt(cursor.getString(8)));
+                words.add(word);
+                Log.i("Today Learnt Word", word.getSpelling());
+            } while (cursor.moveToNext());
+        }
+        if (cursor != null)
+            cursor.close();
+
+        return words;
+    }
+
+    public ArrayList<Word> getStarredWords() {
+        ArrayList<Word> words = new ArrayList<Word>();
+
+        Cursor cursor = sqlHelper.query("summary", null, "STARRED = 1", null, null, null, "RANDOM()", "5");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Word word = new Word();
+                word.setSpelling(cursor.getString(1));
+                word.setMeaning(cursor.getString(2));
+                word.setPhonetic(cursor.getString(3));
+                word.setFamiliarity(Integer.parseInt(cursor.getString(5)));
+                word.setStarred(Integer.parseInt(cursor.getString(8)));
+                words.add(word);
+                Log.i("Starred Word", word.getSpelling());
+            } while (cursor.moveToNext());
+        }
+        if (cursor != null)
+            cursor.close();
+
+        return words;
     }
 
     public void closeDatabase() {

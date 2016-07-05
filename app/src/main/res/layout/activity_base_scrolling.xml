@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/bottom_base_scrolling"
         android:fitsSystemWindows="true"
-        tools:context="com.chenghao.craman.BaseScrollingActivity">
+        tools:context="com.chenghao.craman.activity.BaseScrollingActivity">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/app_bar"

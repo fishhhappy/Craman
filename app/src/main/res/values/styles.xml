@@ -27,4 +27,8 @@
         <item name="colorButtonNormal">#2196F3</item>
     </style>
 
+    <style name="ButtonTextStyle" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
 </resources>
