@@ -366,14 +366,15 @@
                     android:padding="@dimen/activity_vertical_margin">
 
                     <TextView
+                        android:id="@+id/tv_test"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="最近三次测试的正确率"
-                        android:layout_marginBottom="8dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
 
                     <com.chenghao.craman.view.CustomListView
                         android:id="@+id/lv_test"
+                        android:layout_marginTop="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 

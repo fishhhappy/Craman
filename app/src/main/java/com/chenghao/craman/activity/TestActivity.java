@@ -1,6 +1,7 @@
 package com.chenghao.craman.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
@@ -11,9 +12,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.chenghao.craman.R;
+import com.chenghao.craman.animator.FadeOutAndIn;
 import com.chenghao.craman.database.DataAccess;
 import com.chenghao.craman.model.Word;
-import com.chenghao.craman.animator.FadeOutAndIn;
 import com.hanks.htextview.HTextView;
 
 import java.util.Vector;
@@ -165,6 +166,16 @@ public class TestActivity extends BaseActivity {
                 } else if (btn_next.getText().equals("提交")) {
                     Snackbar.make(cl_root, "本次做对了" + correct + "道题，正确率" + correctRate(), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    SharedPreferences mySharedPreferences = getSharedPreferences("test", MODE_PRIVATE);
+                    String last1 = mySharedPreferences.getString("last1", "");
+                    String last2 = mySharedPreferences.getString("last2", "");
+                    if (!last1.equals("")) {
+                        mySharedPreferences.edit().putString("last2", last1).commit();
+                    }
+                    if (!last2.equals("")) {
+                        mySharedPreferences.edit().putString("last3", last2).commit();
+                    }
+                    mySharedPreferences.edit().putString("last1", correct + "/" + max + "  " + correctRate()).commit();
                 }
             }
         });

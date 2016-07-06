@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -31,7 +32,6 @@ import com.chenghao.craman.adaptor.TestAdaptor;
 import com.chenghao.craman.adaptor.WordAdaptor;
 import com.chenghao.craman.database.DataAccess;
 import com.chenghao.craman.database.SqlHelper;
-import com.chenghao.craman.model.Test;
 import com.chenghao.craman.model.Word;
 import com.chenghao.craman.view.CustomListView;
 import com.hanks.htextview.HTextView;
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private DataAccess dataAccess;
     private FloatingActionButton fab;
-    private TextView tv_pick_phonetic, tv_pick_meaning, tv_progress;
+    private TextView tv_pick_phonetic, tv_pick_meaning, tv_progress, tv_test;
     private HTextView tv_pick_spelling;
     private Button btn_refresh, btn_detail, btn_learn, btn_star, btn_test;
     private ImageView iv_expand_learnt_word, iv_expand_starred_word;
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         File dir = new File("data/data/com.chenghao.craman/voices/");
         if (!dir.exists()) dir.mkdir();
 
-        getLatestTest();
+        updateLatestTests();
     }
 
     public void initWidgets() {
@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity
         tv_pick_phonetic = (TextView) findViewById(R.id.tv_pick_phonetic);
         tv_pick_meaning = (TextView) findViewById(R.id.tv_pick_meaning);
         tv_progress = (TextView) findViewById(R.id.tv_progress);
+        tv_test = (TextView) findViewById(R.id.tv_test);
         btn_refresh = (Button) findViewById(R.id.btn_refresh);
         btn_detail = (Button) findViewById(R.id.btn_detail);
         btn_learn = (Button) findViewById(R.id.btn_learn);
@@ -226,46 +227,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v) {
                 // 展开
                 if (lv_learnt_word.getVisibility() == View.GONE) {
-                    final ArrayList<Word> words = dataAccess.getTodayLearntWords();
-
-                    if (words.size() > 0) {
-                        Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_clockwise);
-                        animator.setTarget(iv_expand_learnt_word);
-                        animator.start();
-
-                        WordAdaptor wordAdaptor = new WordAdaptor(MainActivity.this, words);
-                        lv_learnt_word.setAdapter(wordAdaptor);
-                        lv_learnt_word.setVisibility(View.INVISIBLE);
-
-                        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(lv_learnt_word, "alpha", 0f, 1f);
-                        fadeIn.addListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationStart(Animator animation) {
-                                super.onAnimationStart(animation);
-                                lv_learnt_word.setVisibility(View.VISIBLE);
-                            }
-                        });
-                        fadeIn.setDuration(500);
-                        fadeIn.setInterpolator(new AccelerateDecelerateInterpolator());
-                        fadeIn.start();
-
-                        lv_learnt_word.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                String word = words.get(position).getSpelling();
-                                String table = dataAccess.getTable(word);
-                                Intent intent = new Intent();
-                                Bundle bundle = new Bundle();
-                                bundle.putInt("mode", WordActivity.BROWSING_MODE);
-                                bundle.putInt("content", R.layout.word_content);
-                                bundle.putString("word", word);
-                                bundle.putString("table", table);
-                                intent.putExtras(bundle);
-                                intent.setClass(MainActivity.this, WordActivity.class);
-                                startActivity(intent);
-                            }
-                        });
-                    } else {
+                    if (!updateTodayLearntWords()) {
                         Snackbar.make(v, "今日还没有学习，快去背单词吧", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
@@ -286,46 +248,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v) {
                 // 展开
                 if (lv_starred_word.getVisibility() == View.GONE) {
-                    final ArrayList<Word> words = dataAccess.getStarredWords();
-
-                    if (words.size() > 0) {
-                        Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_clockwise);
-                        animator.setTarget(iv_expand_starred_word);
-                        animator.start();
-
-                        WordAdaptor wordAdaptor = new WordAdaptor(MainActivity.this, words);
-                        lv_starred_word.setAdapter(wordAdaptor);
-                        lv_starred_word.setVisibility(View.INVISIBLE);
-
-                        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(lv_starred_word, "alpha", 0f, 1f);
-                        fadeIn.addListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationStart(Animator animation) {
-                                super.onAnimationStart(animation);
-                                lv_starred_word.setVisibility(View.VISIBLE);
-                            }
-                        });
-                        fadeIn.setDuration(500);
-                        fadeIn.setInterpolator(new AccelerateDecelerateInterpolator());
-                        fadeIn.start();
-
-                        lv_starred_word.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                String word = words.get(position).getSpelling();
-                                String table = dataAccess.getTable(word);
-                                Intent intent = new Intent();
-                                Bundle bundle = new Bundle();
-                                bundle.putInt("mode", WordActivity.BROWSING_MODE);
-                                bundle.putInt("content", R.layout.word_content);
-                                bundle.putString("word", word);
-                                bundle.putString("table", table);
-                                intent.putExtras(bundle);
-                                intent.setClass(MainActivity.this, WordActivity.class);
-                                startActivity(intent);
-                            }
-                        });
-                    } else {
+                    if (!updateStarredWords()) {
                         Snackbar.make(v, "还没有收藏过单词", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
@@ -438,6 +361,27 @@ public class MainActivity extends AppCompatActivity
     public void onResume() {
         super.onResume();
         updateProgress();
+        updateLatestTests();
+
+        if (lv_learnt_word.getVisibility() == View.VISIBLE) {
+            if (!updateTodayLearntWords()) {
+                Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_counterclockwise);
+                animator.setTarget(iv_expand_learnt_word);
+                animator.start();
+
+                lv_learnt_word.setVisibility(View.GONE);
+            }
+        }
+
+        if (lv_starred_word.getVisibility() == View.VISIBLE) {
+            if (!updateStarredWords()) {
+                Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_counterclockwise);
+                animator.setTarget(iv_expand_starred_word);
+                animator.start();
+
+                lv_starred_word.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void pickOneWord() {
@@ -458,14 +402,134 @@ public class MainActivity extends AppCompatActivity
         tv_progress.setText("今日已学 " + String.valueOf(progress) + " 个");
     }
 
-    public void getLatestTest() {
-        Test test1 = new Test(20, 20);
-        Test test2 = new Test(20, 18);
-        ArrayList<Test> tests = new ArrayList<Test>();
-        tests.add(test1);
-        tests.add(test2);
+    public void updateLatestTests() {
+        SharedPreferences mySharedPreferences = getSharedPreferences("test", MODE_PRIVATE);
+        ArrayList<String> tests = new ArrayList<String>();
 
-        TestAdaptor testAdaptor = new TestAdaptor(this, tests);
-        lv_test.setAdapter(testAdaptor);
+        String last1 = mySharedPreferences.getString("last1", "");
+        if (!last1.equals("")) {
+            tests.add(last1);
+        }
+
+        String last2 = mySharedPreferences.getString("last2", "");
+        if (!last2.equals("")) {
+            tests.add(last2);
+        }
+
+        String last3 = mySharedPreferences.getString("last3", "");
+        if (!last3.equals("")) {
+            tests.add(last3);
+        }
+
+        if (tests.size() > 0) {
+            TestAdaptor testAdaptor = new TestAdaptor(this, tests);
+            lv_test.setAdapter(testAdaptor);
+            lv_test.setVisibility(View.VISIBLE);
+
+            if (tests.size() == 1) {
+                tv_test.setText("最近一次测试的正确率");
+            } else if (tests.size() == 2) {
+                tv_test.setText("最近两次测试的正确率");
+            } else if (tests.size() == 3) {
+                tv_test.setText("最近三次测试的正确率");
+            }
+        } else {
+            tv_test.setText("最近还没有参加过测试");
+            lv_test.setVisibility(View.GONE);
+        }
+    }
+
+    public boolean updateStarredWords() {
+        final ArrayList<Word> words = dataAccess.getStarredWords();
+
+        if (words.size() > 0) {
+            Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_clockwise);
+            animator.setTarget(iv_expand_starred_word);
+            animator.start();
+
+            WordAdaptor wordAdaptor = new WordAdaptor(MainActivity.this, words);
+            lv_starred_word.setAdapter(wordAdaptor);
+            lv_starred_word.setVisibility(View.INVISIBLE);
+
+            ObjectAnimator fadeIn = ObjectAnimator.ofFloat(lv_starred_word, "alpha", 0f, 1f);
+            fadeIn.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    super.onAnimationStart(animation);
+                    lv_starred_word.setVisibility(View.VISIBLE);
+                }
+            });
+            fadeIn.setDuration(500);
+            fadeIn.setInterpolator(new AccelerateDecelerateInterpolator());
+            fadeIn.start();
+
+            lv_starred_word.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String word = words.get(position).getSpelling();
+                    String table = dataAccess.getTable(word);
+                    Intent intent = new Intent();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("mode", WordActivity.BROWSING_MODE);
+                    bundle.putInt("content", R.layout.word_content);
+                    bundle.putString("word", word);
+                    bundle.putString("table", table);
+                    intent.putExtras(bundle);
+                    intent.setClass(MainActivity.this, WordActivity.class);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean updateTodayLearntWords() {
+        final ArrayList<Word> words = dataAccess.getTodayLearntWords();
+
+        if (words.size() > 0) {
+            Animator animator = AnimatorInflater.loadAnimator(MainActivity.this, R.animator.rotate_clockwise);
+            animator.setTarget(iv_expand_learnt_word);
+            animator.start();
+
+            WordAdaptor wordAdaptor = new WordAdaptor(MainActivity.this, words);
+            lv_learnt_word.setAdapter(wordAdaptor);
+            lv_learnt_word.setVisibility(View.INVISIBLE);
+
+            ObjectAnimator fadeIn = ObjectAnimator.ofFloat(lv_learnt_word, "alpha", 0f, 1f);
+            fadeIn.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    super.onAnimationStart(animation);
+                    lv_learnt_word.setVisibility(View.VISIBLE);
+                }
+            });
+            fadeIn.setDuration(500);
+            fadeIn.setInterpolator(new AccelerateDecelerateInterpolator());
+            fadeIn.start();
+
+            lv_learnt_word.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String word = words.get(position).getSpelling();
+                    String table = dataAccess.getTable(word);
+                    Intent intent = new Intent();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("mode", WordActivity.BROWSING_MODE);
+                    bundle.putInt("content", R.layout.word_content);
+                    bundle.putString("word", word);
+                    bundle.putString("table", table);
+                    intent.putExtras(bundle);
+                    intent.setClass(MainActivity.this, WordActivity.class);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            return false;
+        }
+
+        return true;
     }
 }

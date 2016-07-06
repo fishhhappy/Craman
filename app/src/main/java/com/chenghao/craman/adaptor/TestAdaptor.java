@@ -8,15 +8,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.chenghao.craman.R;
-import com.chenghao.craman.model.Test;
 
 import java.util.ArrayList;
 
 /**
  * Created by Hao on 16/7/5.
  */
-public class TestAdaptor extends ArrayAdapter<Test> {
-    public TestAdaptor(Context context, ArrayList<Test> values) {
+public class TestAdaptor extends ArrayAdapter<String> {
+    public TestAdaptor(Context context, ArrayList<String> values) {
         super(context, R.layout.row_test, values);
     }
 
@@ -28,13 +27,10 @@ public class TestAdaptor extends ArrayAdapter<Test> {
         TextView tv_row_number = (TextView) view.findViewById(R.id.tv_row_number);
         TextView tv_row_result = (TextView) view.findViewById(R.id.tv_row_result);
 
-        Test test = getItem(position);
-        tv_row_number.setText(String.valueOf(position));
+        String test = getItem(position);
+        tv_row_number.setText(String.valueOf(position + 1));
 
-        int total = test.getTotal();
-        int correct = test.getCorrect();
-        int rate = (int) Math.round((double) correct / total * 100);
-        tv_row_result.setText(correct + "/" + total + "  " + rate + "%");
+        tv_row_result.setText(test);
 
         return view;
     }
